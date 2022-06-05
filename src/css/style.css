@@ -7,4 +7,44 @@
   width: 560px;
   height: 560px;
   border: solid black;
+  background-color: black;
 }
+
+.board div {
+  width: 20px;
+  height: 20px;
+}
+
+.cookie {
+  background-color: green;   
+  border: 5px solid black;
+  border-radius: 15px;
+  box-sizing: border-box;
+}
+
+.wall {
+  background-color: darkred;
+  background-image: url('../../img/brick_wall.png');
+}
+
+.blinky {
+  background-color: red;
+}
+
+.pinky {
+  background-color: pink;
+}
+
+.inky {
+  background-color: cyan;
+}
+
+.clyde {
+  background-color: orange;     
+}
+
+.pacman {
+  background-color: yellow;
+  border-radius: 10px;
+}
+
