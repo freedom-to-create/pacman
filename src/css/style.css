@@ -7,4 +7,59 @@
   width: 560px;
   height: 560px;
   border: solid black;
+  background-color: black;
 }
+
+.board div {
+  width: 20px;
+  height: 20px;
+}
+
+.cookie {
+  background-color: yellow;   
+  border: 8px solid black;
+  border-radius: 15px;
+  box-sizing: border-box;
+}
+
+.ghost {
+  border: 0px;
+  border-radius: 0px;
+}
+
+.score {
+  display: inline;
+  background-color: black;
+  color: yellow;
+}
+
+.wall {
+  background-color: darkred;
+  background-image: url('../../img/brick_wall.png');
+}
+
+.blinky {
+  background-color: red;
+  background-image: url('../../img/blinky.png');
+}
+
+.pinky {
+  background-color: pink;
+  background-image: url('../../img/pinky.png');
+}
+
+.inky {
+  background-color: cyan;
+  background-image: url('../../img/inky.png');
+}
+
+.clyde {
+  background-color: orange;   
+  background-image: url('../../img/clyde.png');  
+}
+
+.pacman {
+  background-color: yellow;
+  border-radius: 10px;
+}
+
