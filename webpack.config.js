@@ -16,17 +16,6 @@ const config = {
         loader: 'ts-loader',
         exclude: /node_modules/,
       },
-      {
-        test: /\.png$/,
-        use: [
-          {
-            loader: 'url-loader',
-            options: {
-              mimetype: 'image/png',
-            },
-          },
-        ],
-      },
     ],
   },
   resolve: {

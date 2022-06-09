@@ -1,101 +1,49 @@
 import {
-  BOARD_CELL_WIDTH,
+  BOARD_SIZE,
   BOARD_LAYOUT,
-  GameEntity,
-  KeyCode,
-  MAX_SCORE,
   PACMAN_INITIAL_LOCATION,
+  BLINKY,
+  CLYDE,
+  INKY,
+  PINKY,
+  MAP_ENTITIES,
 } from './constants';
+import { goTo } from './movements';
+import { GameEntity, Direction } from './types';
+
+let curPacmanIndex = PACMAN_INITIAL_LOCATION;
 
 document.addEventListener('DOMContentLoaded', () => {
   const boardDOMElement = document.querySelector('.board');
-  const scoreDisplay = document.getElementById('score');
-  let score = 0;
-  const elements = Array<Element>(BOARD_LAYOUT.length);
+  const scoreDisplay = document.querySelector('.score');
 
+  let cookiesLeft = 0;
+
+  const elements = Array<Element>(BOARD_LAYOUT.length);
   (function createBoard() {
     if (!boardDOMElement) {
       return console.error('Root DOM Element cannot be null!');
     }
     BOARD_LAYOUT.forEach((field, idx) => {
       const element = document.createElement('div');
-      const gameEntity = [
-        GameEntity.Cookie,
-        GameEntity.Wall,
-        GameEntity.GhostsLair,
-        GameEntity.Empty,
-      ][field];
-      element.classList.add(gameEntity);
+      element.classList.add(MAP_ENTITIES[field]);
       boardDOMElement.appendChild(element);
       elements[idx] = element;
+      if (MAP_ENTITIES[field] === GameEntity.Cookie) {
+        cookiesLeft++;
+      }
     });
   })();
 
-  let pacmanCurrentIndex = PACMAN_INITIAL_LOCATION;
-  elements[pacmanCurrentIndex].classList.add(GameEntity.Packman);
-  //get the coordinates of pacman on the grid with X and Y axis
-  // function getCoordinates(index) {
-  //   return [index % width, Math.floor(index / width)]
-  // }
-
-  // console.log(getCoordinates(pacmanCurrentIndex))
-
-  function movePacman(e: KeyboardEvent) {
-    elements[pacmanCurrentIndex].classList.remove('pac-man');
-    switch (e.keyCode) {
-      case KeyCode.Left:
-        if (
-          pacmanCurrentIndex % BOARD_CELL_WIDTH !== 0 &&
-          !elements[pacmanCurrentIndex - 1].classList.contains(
-            GameEntity.Wall,
-          ) &&
-          !elements[pacmanCurrentIndex - 1].classList.contains('ghost-lair')
-        )
-          pacmanCurrentIndex -= 1;
-        if (elements[pacmanCurrentIndex - 1] === elements[363]) {
-          pacmanCurrentIndex = 391;
-        }
-        break;
-      case KeyCode.Up:
-        if (
-          pacmanCurrentIndex - BOARD_CELL_WIDTH >= 0 &&
-          !elements[pacmanCurrentIndex - BOARD_CELL_WIDTH].classList.contains(
-            GameEntity.Wall,
-          ) &&
-          !elements[pacmanCurrentIndex - BOARD_CELL_WIDTH].classList.contains(
-            GameEntity.GhostsLair,
-          )
-        )
-          pacmanCurrentIndex -= BOARD_CELL_WIDTH;
-        break;
-      case KeyCode.Right:
-        if (
-          pacmanCurrentIndex % BOARD_CELL_WIDTH < BOARD_CELL_WIDTH - 1 &&
-          !elements[pacmanCurrentIndex + 1].classList.contains(
-            GameEntity.Wall,
-          ) &&
-          !elements[pacmanCurrentIndex + 1].classList.contains('ghost-lair')
-        )
-          pacmanCurrentIndex += 1;
-        if (elements[pacmanCurrentIndex + 1] === elements[392]) {
-          pacmanCurrentIndex = 364;
-        }
-        break;
-      case KeyCode.Down:
-        if (
-          pacmanCurrentIndex + BOARD_CELL_WIDTH <
-            BOARD_CELL_WIDTH * BOARD_CELL_WIDTH &&
-          !elements[pacmanCurrentIndex + BOARD_CELL_WIDTH].classList.contains(
-            GameEntity.Wall,
-          ) &&
-          !elements[pacmanCurrentIndex + BOARD_CELL_WIDTH].classList.contains(
-            GameEntity.GhostsLair,
-          )
-        )
-          pacmanCurrentIndex += BOARD_CELL_WIDTH;
-        break;
+  elements[curPacmanIndex].classList.add(GameEntity.Packman);
+  function movePacman({ keyCode }: { keyCode: Direction }) {
+    const nextPacmanIdx = goTo(keyCode, curPacmanIndex);
+    if (nextPacmanIdx !== curPacmanIndex) {
+      elements[curPacmanIndex].classList.remove(GameEntity.Packman);
     }
-    elements[pacmanCurrentIndex].classList.add(GameEntity.Packman);
+    curPacmanIndex = nextPacmanIdx;
+
+    elements[curPacmanIndex].classList.add(GameEntity.Packman);
     pacDotEaten();
     checkForGameOver();
     checkForVictory();
@@ -103,13 +51,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keyup', movePacman);
 
   function pacDotEaten() {
-    if (!scoreDisplay) {
-      return;
-    }
-    if (elements[pacmanCurrentIndex].classList.contains(GameEntity.Cookie)) {
-      score++;
-      scoreDisplay.innerHTML = String(score);
-      elements[pacmanCurrentIndex].classList.remove(GameEntity.Cookie);
+    if (elements[curPacmanIndex].classList.contains(GameEntity.Cookie)) {
+      elements[curPacmanIndex].classList.remove(GameEntity.Cookie);
+      if (scoreDisplay) {
+        cookiesLeft--;
+        scoreDisplay.innerHTML = `Cookies left: ${cookiesLeft}`;
+      }
     }
   }
 
@@ -118,23 +65,29 @@ document.addEventListener('DOMContentLoaded', () => {
     startIndex;
     speed;
     currentIndex;
-    isScared;
     timerId: NodeJS.Timeout | number;
-    constructor(className: string, startIndex: number, speed: number) {
+    constructor({
+      className,
+      startIndex,
+      speed,
+    }: {
+      className: string;
+      startIndex: number;
+      speed: number;
+    }) {
       this.className = className;
       this.startIndex = startIndex;
       this.speed = speed;
       this.currentIndex = startIndex;
-      this.isScared = false;
       this.timerId = NaN;
     }
   }
 
   const ghosts = [
-    new Ghost('blinky', 348, 250),
-    new Ghost('pinky', 376, 400),
-    new Ghost('inky', 351, 300),
-    new Ghost('clyde', 379, 500),
+    new Ghost(BLINKY),
+    new Ghost(PINKY),
+    new Ghost(INKY),
+    new Ghost(CLYDE),
   ];
 
   ghosts.forEach((ghost) => {
@@ -145,27 +98,27 @@ document.addEventListener('DOMContentLoaded', () => {
   ghosts.forEach((ghost) => moveGhost(ghost));
 
   function moveGhost(ghost: Ghost) {
-    const directions = [-1, +1, BOARD_CELL_WIDTH, -BOARD_CELL_WIDTH];
+    const directions = [-1, +1, BOARD_SIZE, -BOARD_SIZE];
     let direction = directions[Math.floor(Math.random() * directions.length)];
 
     ghost.timerId = setInterval(function () {
-      //if the next squre your ghost is going to go to does not have a ghost and does not have a wall
       if (
         !elements[ghost.currentIndex + direction].classList.contains(
-          GameEntity.Ghost,
+          GameEntity.Ghost
         ) &&
         !elements[ghost.currentIndex + direction].classList.contains(
-          GameEntity.Wall,
+          GameEntity.Wall
         )
       ) {
-        elements[ghost.currentIndex].classList.remove(ghost.className);
-        //move into that space
+        elements[ghost.currentIndex].classList.remove(
+          ghost.className,
+          GameEntity.Ghost
+        );
         ghost.currentIndex += direction;
         elements[ghost.currentIndex].classList.add(
           ghost.className,
-          GameEntity.Ghost,
+          GameEntity.Ghost
         );
-        //else find a new random direction ot go in
       } else {
         direction = directions[Math.floor(Math.random() * directions.length)];
       }
@@ -173,23 +126,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }, ghost.speed);
   }
 
+  function clearTimers() {
+    ghosts.forEach((ghost) => clearInterval(ghost.timerId));
+    document.removeEventListener('keyup', movePacman);
+  }
+
   function checkForGameOver() {
-    if (elements[pacmanCurrentIndex].classList.contains(GameEntity.Ghost)) {
-      ghosts.forEach((ghost) => clearInterval(ghost.timerId));
-      document.removeEventListener('keyup', movePacman);
-      setTimeout(function () {
-        console.info('Game Over');
-      }, 500);
+    if (elements[curPacmanIndex].classList.contains(GameEntity.Ghost)) {
+      clearTimers();
+      console.info('Game Over');
     }
   }
 
   function checkForVictory() {
-    if (score === MAX_SCORE) {
-      ghosts.forEach((ghost) => clearInterval(ghost.timerId));
-      document.removeEventListener('keyup', movePacman);
-      setTimeout(function () {
-        console.info('You have WON!');
-      }, 500);
+    if (cookiesLeft <= 0) {
+      clearTimers();
+      console.info('You have WON!');
     }
   }
 });
