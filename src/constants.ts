@@ -1,4 +1,4 @@
-import { BoardNumbers, GameEntity, Direction } from './types';
+import { BoardElement, GameEntity, Direction } from './types';
 
 export const BLINKY = {
   className: 'blinky',
@@ -26,14 +26,14 @@ export const CLYDE = {
 
 export const PACMAN_INITIAL_LOCATION = 490;
 
-export const MAP_ENTITIES = [
-  GameEntity.Cookie,
-  GameEntity.Wall,
-  GameEntity.Empty,
-];
+export const STATIC_MAP_ENTITIES: Record<BoardElement, GameEntity> = {
+  0: GameEntity.Cookie,
+  1: GameEntity.Wall,
+  2: GameEntity.Empty,
+};
 
 /* eslint-disable prettier/prettier */
-export const BOARD_LAYOUT: BoardNumbers[] = [
+export const BOARD_LAYOUT: BoardElement[] = [
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
   1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1,
@@ -72,3 +72,5 @@ export const DIRECTION_GEARBOX = {
   [Direction.Up]: -BOARD_SIZE,
   [Direction.Down]: BOARD_SIZE,
 };
+
+export const EMPTY_PATH_COST = 1;

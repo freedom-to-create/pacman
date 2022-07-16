@@ -6,7 +6,7 @@ export enum GameEntity {
   Ghost = 'ghost',
 }
 
-export type BoardNumbers = 0 | 1 | 2;
+export type BoardElement = 0 | 1 | 2;
 
 export enum Direction {
   Up = 38,

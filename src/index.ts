@@ -1,15 +1,17 @@
 import {
-  BOARD_SIZE,
   BOARD_LAYOUT,
   PACMAN_INITIAL_LOCATION,
   BLINKY,
   CLYDE,
   INKY,
   PINKY,
-  MAP_ENTITIES,
+  STATIC_MAP_ENTITIES,
 } from './constants';
 import { goTo } from './movements';
+import { findPath, MovementsGraph, Node } from './pathfinding';
 import { GameEntity, Direction } from './types';
+
+const GRAPH = new MovementsGraph(BOARD_LAYOUT);
 
 let curPacmanIndex = PACMAN_INITIAL_LOCATION;
 
@@ -19,23 +21,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let cookiesLeft = 0;
 
+  // TODO: may be be refactored as elements = initBoard();
   const elements = Array<Element>(BOARD_LAYOUT.length);
-  (function createBoard() {
+  (function initBoard() {
     if (!boardDOMElement) {
       return console.error('Root DOM Element cannot be null!');
     }
-    BOARD_LAYOUT.forEach((field, idx) => {
-      const element = document.createElement('div');
-      element.classList.add(MAP_ENTITIES[field]);
-      boardDOMElement.appendChild(element);
-      elements[idx] = element;
-      if (MAP_ENTITIES[field] === GameEntity.Cookie) {
+    BOARD_LAYOUT.forEach((element, idx) => {
+      const domNode = document.createElement('div');
+      domNode.classList.add(STATIC_MAP_ENTITIES[element]);
+      domNode.dataset.idx = String(idx);
+      boardDOMElement.appendChild(domNode);
+      elements[idx] = domNode;
+      if (STATIC_MAP_ENTITIES[element] === GameEntity.Cookie) {
         cookiesLeft++;
       }
     });
   })();
 
+  // init Pacman
   elements[curPacmanIndex].classList.add(GameEntity.Packman);
+
   function movePacman({ keyCode }: { keyCode: Direction }) {
     const nextPacmanIdx = goTo(keyCode, curPacmanIndex);
     if (nextPacmanIdx !== curPacmanIndex) {
@@ -49,6 +55,25 @@ document.addEventListener('DOMContentLoaded', () => {
     checkForVictory();
   }
   document.addEventListener('keyup', movePacman);
+
+  function drawPath(ghost: Ghost) {
+    const path = findPath(GRAPH, ghost.currentIndex, curPacmanIndex);
+    // console.log('Path: ', path);
+    path
+      .map(({ idx }) => document.querySelector(`[data-idx='${idx}']`))
+      .reduce((promise, node) => {
+        return promise.then(() => {
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              const el = document.createElement('div');
+              el.classList.add('path', `${ghost.className}_path`);
+              node?.appendChild(el);
+              resolve(undefined);
+            }, 25);
+          });
+        });
+      }, Promise.resolve());
+  }
 
   function pacDotEaten() {
     if (elements[curPacmanIndex].classList.contains(GameEntity.Cookie)) {
@@ -66,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     speed;
     currentIndex;
     timerId: NodeJS.Timeout | number;
+    private track: Node[] = [];
     constructor({
       className,
       startIndex,
@@ -81,8 +107,35 @@ document.addEventListener('DOMContentLoaded', () => {
       this.currentIndex = startIndex;
       this.timerId = NaN;
     }
+
+    setTrack(track: Node[]) {
+      this.track = [...track];
+      // drawPath(this);
+    }
+
+    followTrack() {
+      setInterval(() => {
+        const nextTile = this.track.pop();
+        if (
+          !nextTile ||
+          elements[nextTile.idx].classList.contains(GameEntity.Ghost)
+        ) {
+          return;
+        }
+        elements[this.currentIndex].classList.remove(
+          this.className,
+          GameEntity.Ghost
+        );
+        this.currentIndex = nextTile.idx;
+        elements[this.currentIndex].classList.add(
+          this.className,
+          GameEntity.Ghost
+        );
+      }, this.speed);
+    }
   }
 
+  // init ghosts
   const ghosts = [
     new Ghost(BLINKY),
     new Ghost(PINKY),
@@ -90,41 +143,20 @@ document.addEventListener('DOMContentLoaded', () => {
     new Ghost(CLYDE),
   ];
 
+  //TODO: move map init
   ghosts.forEach((ghost) => {
     elements[ghost.currentIndex].classList.add(ghost.className);
     elements[ghost.currentIndex].classList.add(GameEntity.Ghost);
+    ghost.followTrack();
+    // drawPath(ghost);
+    ghost.setTrack(findPath(GRAPH, ghost.currentIndex, curPacmanIndex));
+    document.addEventListener('keyup', () =>
+      ghost.setTrack(findPath(GRAPH, ghost.currentIndex, curPacmanIndex))
+    );
   });
 
-  ghosts.forEach((ghost) => moveGhost(ghost));
-
-  function moveGhost(ghost: Ghost) {
-    const directions = [-1, +1, BOARD_SIZE, -BOARD_SIZE];
-    let direction = directions[Math.floor(Math.random() * directions.length)];
-
-    ghost.timerId = setInterval(function () {
-      if (
-        !elements[ghost.currentIndex + direction].classList.contains(
-          GameEntity.Ghost
-        ) &&
-        !elements[ghost.currentIndex + direction].classList.contains(
-          GameEntity.Wall
-        )
-      ) {
-        elements[ghost.currentIndex].classList.remove(
-          ghost.className,
-          GameEntity.Ghost
-        );
-        ghost.currentIndex += direction;
-        elements[ghost.currentIndex].classList.add(
-          ghost.className,
-          GameEntity.Ghost
-        );
-      } else {
-        direction = directions[Math.floor(Math.random() * directions.length)];
-      }
-      checkForGameOver();
-    }, ghost.speed);
-  }
+  // maybe move to ghost init
+  // ghosts.forEach((ghost) => moveGhost(ghost));
 
   function clearTimers() {
     ghosts.forEach((ghost) => clearInterval(ghost.timerId));

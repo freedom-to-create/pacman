@@ -1,7 +1,7 @@
 import {
   BOARD_LAYOUT,
   BOARD_SIZE,
-  MAP_ENTITIES,
+  STATIC_MAP_ENTITIES,
   DIRECTION_GEARBOX,
 } from './constants';
 import { GameEntity, Direction } from './types';
@@ -31,16 +31,16 @@ function getDistanceAtBoardBoundaries(direction: Direction, idx: number) {
   return 0;
 }
 
-export function goTo(there: Direction, idx: number) {
+export function goTo(there: Direction, currentIdx: number) {
   const distance =
-    getDistanceAtBoardBoundaries(there, idx) || DIRECTION_GEARBOX[there];
+    getDistanceAtBoardBoundaries(there, currentIdx) || DIRECTION_GEARBOX[there];
 
-  const next = BOARD_LAYOUT[idx + distance];
-  const isCollision = MAP_ENTITIES[next] === GameEntity.Wall;
+  const next = BOARD_LAYOUT[currentIdx + distance];
+  const isCollision = STATIC_MAP_ENTITIES[next] === GameEntity.Wall;
 
   if (isCollision) {
     console.info(`Skipped Keycode ${there}: collision detected`);
   }
 
-  return isCollision ? idx : idx + distance;
+  return isCollision ? currentIdx : currentIdx + distance;
 }
