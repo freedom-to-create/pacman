@@ -8,12 +8,8 @@ import {
 } from '../constants';
 import { Ghost } from './Ghost';
 import { Pacman } from './Pacman';
-import { Tile } from '../pathfinding';
 import { Direction, GameEntity } from '../commonTypes';
-
-interface PathFinder {
-  (fromIdx: number, toIdx: number): Tile[];
-}
+import { PathFinder } from '../pathfinding';
 
 export class Game {
   private board: Element[] = [];

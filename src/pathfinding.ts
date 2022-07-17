@@ -1,6 +1,10 @@
 import { DIRECTION_GEARBOX, STATIC_MAP_ENTITIES } from './constants';
 import { BoardElement, GameEntity } from './commonTypes';
 
+export interface PathFinder {
+  (fromIdx: number, toIdx: number): Tile[];
+}
+
 type MovementsGraph = Record<string, Tile | undefined>;
 export class Tile {
   idx;
