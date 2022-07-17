@@ -1,44 +1,31 @@
-import {
-  DIRECTION_GEARBOX,
-  EMPTY_PATH_COST,
-  STATIC_MAP_ENTITIES,
-} from './constants';
-import { BoardElement, GameEntity } from './types';
+import { DIRECTION_GEARBOX, STATIC_MAP_ENTITIES } from './constants';
+import { BoardElement, GameEntity } from './commonTypes';
 
-export class Node {
+type MovementsGraph = Record<string, Tile | undefined>;
+export class Tile {
   idx;
-  cost;
-  constructor(idx: number, cost: number) {
+  constructor(idx: number) {
     this.idx = idx;
-    this.cost = cost;
   }
 }
 
-export class MovementsGraph {
+export class Graph {
   private nodes;
 
   private init(gameGrid: BoardElement[]) {
-    return gameGrid.reduce<Record<string, Node | undefined>>(
+    return gameGrid.reduce<MovementsGraph>(
       (res, el, idx) =>
         STATIC_MAP_ENTITIES[el] === GameEntity.Wall
           ? res
-          : { ...res, [idx]: new Node(idx, gameGrid[idx]) },
+          : { ...res, [idx]: new Tile(idx) },
       {}
     );
   }
 
-  getNodes() {
-    return Object.values(this.nodes);
-  }
-
-  getNeighbors(node: Node) {
+  getNeighbors(node: Tile): (Tile | undefined)[] {
     return Object.values(DIRECTION_GEARBOX).map((direction) => {
       return this.nodes[direction + node.idx];
     });
-  }
-
-  getStepCost(next: Node) {
-    return next.cost;
   }
 
   constructor(map: BoardElement[]) {
@@ -46,19 +33,12 @@ export class MovementsGraph {
   }
 }
 
-function getHeuristic(a: Node, b: Node) {
-  return Math.abs(a.idx - b.idx);
-}
-
-export function findPath(
-  graph: MovementsGraph,
-  fromIdx: number,
-  toIdx: number
-) {
-  const fromNode = new Node(fromIdx, EMPTY_PATH_COST);
+// BSF on Graphs pathfinding algorithm
+export function findPath(graph: Graph, fromIdx: number, toIdx: number) {
+  const fromNode = new Tile(fromIdx);
   const frontier = [fromNode];
 
-  const cameFrom: Record<string, Node | null> = { [fromIdx]: null };
+  const cameFrom: Record<string, Tile | null> = { [fromIdx]: null };
 
   // TODO: refactor to Queue
   for (let current = frontier.shift(); current; current = frontier.shift()) {
@@ -70,22 +50,22 @@ export function findPath(
     }
   }
 
-  // console.log('Graph: ');
-  // console.dir(
-  //   Object.entries(cameFrom).reduce(
-  //     (acc, [idx, node]) => ({
-  //       ...acc,
-  //       [idx]: {
-  //         to: document.querySelector(`[data-idx='${idx}']`),
-  //         from: document.querySelector(`[data-idx='${node?.idx}']`),
-  //         fromIdx: node?.idx,
-  //       },
-  //     }),
-  //     {}
-  //   )
-  // );
+  console.log('Graph of Tiles: ');
+  console.dir(
+    Object.entries(cameFrom).reduce(
+      (acc, [idx, node]) => ({
+        ...acc,
+        [idx]: {
+          to: document.querySelector(`[data-idx='${idx}']`),
+          from: document.querySelector(`[data-idx='${node?.idx}']`),
+          fromIdx: node?.idx,
+        },
+      }),
+      {}
+    )
+  );
 
-  const path = [];
+  const path = [new Tile(toIdx)];
   let currentNode = cameFrom[toIdx];
 
   while (currentNode && currentNode.idx !== fromIdx) {

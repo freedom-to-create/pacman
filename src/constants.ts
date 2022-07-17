@@ -1,4 +1,4 @@
-import { BoardElement, GameEntity, Direction } from './types';
+import { BoardElement, GameEntity, Direction } from './commonTypes';
 
 export const BLINKY = {
   className: 'blinky',
@@ -72,5 +72,3 @@ export const DIRECTION_GEARBOX = {
   [Direction.Up]: -BOARD_SIZE,
   [Direction.Down]: BOARD_SIZE,
 };
-
-export const EMPTY_PATH_COST = 1;

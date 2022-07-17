@@ -62,25 +62,3 @@
   background-color: yellow;
   border-radius: 10px;
 }
-
-div.path {
-  margin: auto;
-  opacity: .33;
-}
-
-div.path.pinky_path {
-  background-color: pink;
-}
-
-div.path.inky_path {
-  background-color: cyan;
-}
-
-div.path.clyde_path {
-  background-color: orange;
-}
-
-div.path.blinky_path {
-  background-color: red;
-}
-
