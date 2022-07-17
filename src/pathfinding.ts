@@ -33,45 +33,46 @@ export class Graph {
   }
 }
 
-// BSF on Graphs pathfinding algorithm
-export function findPath(graph: Graph, fromIdx: number, toIdx: number) {
-  const fromNode = new Tile(fromIdx);
-  const frontier = [fromNode];
+// Breadth First Search on Graphs pathfinding algorithm
+export function findPath(graph: Graph) {
+  return (fromIdx: number, toIdx: number) => {
+    const frontier = [new Tile(fromIdx)];
 
-  const cameFrom: Record<string, Tile | null> = { [fromIdx]: null };
+    const cameFrom: Record<string, Tile | null> = { [fromIdx]: null };
 
-  // TODO: refactor to Queue
-  for (let current = frontier.shift(); current; current = frontier.shift()) {
-    for (const neighbor of graph.getNeighbors(current)) {
-      if (neighbor && cameFrom[neighbor.idx] === undefined) {
-        frontier.push(neighbor);
-        cameFrom[neighbor.idx] = current;
+    // TODO: refactor to Queue
+    for (let current = frontier.shift(); current; current = frontier.shift()) {
+      for (const neighbor of graph.getNeighbors(current)) {
+        if (neighbor && cameFrom[neighbor.idx] === undefined) {
+          frontier.push(neighbor);
+          cameFrom[neighbor.idx] = current;
+        }
       }
     }
-  }
 
-  console.log('Graph of Tiles: ');
-  console.dir(
-    Object.entries(cameFrom).reduce(
-      (acc, [idx, node]) => ({
-        ...acc,
-        [idx]: {
-          to: document.querySelector(`[data-idx='${idx}']`),
-          from: document.querySelector(`[data-idx='${node?.idx}']`),
-          fromIdx: node?.idx,
-        },
-      }),
-      {}
-    )
-  );
+    console.log('Graph of Tiles: ');
+    console.dir(
+      Object.entries(cameFrom).reduce(
+        (acc, [idx, node]) => ({
+          ...acc,
+          [idx]: {
+            to: document.querySelector(`[data-idx='${idx}']`),
+            from: document.querySelector(`[data-idx='${node?.idx}']`),
+            fromIdx: node?.idx,
+          },
+        }),
+        {}
+      )
+    );
 
-  const path = [new Tile(toIdx)];
-  let currentNode = cameFrom[toIdx];
+    const path = [new Tile(toIdx)];
+    let currentNode = cameFrom[toIdx];
 
-  while (currentNode && currentNode.idx !== fromIdx) {
-    path.push(currentNode);
-    currentNode = cameFrom[currentNode.idx];
-  }
+    while (currentNode && currentNode.idx !== fromIdx) {
+      path.push(currentNode);
+      currentNode = cameFrom[currentNode.idx];
+    }
 
-  return path;
+    return path;
+  };
 }
