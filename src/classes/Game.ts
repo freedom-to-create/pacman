@@ -77,6 +77,7 @@ export class Game {
       this.movePacman(keyCode)
     );
     document.removeEventListener('keyup', () => this.updateGhostTracks());
+    document.removeEventListener('keyup', this.movePacman);
   }
 
   constructor(
