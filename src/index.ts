@@ -1,6 +1,6 @@
 import { BOARD_LAYOUT } from './constants';
 import { Game } from './classes/Game';
-import { findPath, Graph } from './pathfinding';
+import { createPathFinder, Graph } from './pathfinding';
 
 document.addEventListener('DOMContentLoaded', () => {
   const boardRoot = document.querySelector('.board');
@@ -12,6 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   }
 
-  const pathFinder = findPath(new Graph(BOARD_LAYOUT));
+  const pathFinder = createPathFinder(new Graph(BOARD_LAYOUT));
   new Game(boardRoot, scoreDisplay, pathFinder).run();
 });
