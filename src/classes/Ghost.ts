@@ -13,7 +13,6 @@ type GhostConstructorParams = {
 
 export class Ghost {
   private className;
-  private startIndex;
   private speed;
   currentIndex;
   private timerId: NodeJS.Timeout | number = NaN;
@@ -25,7 +24,6 @@ export class Ghost {
   }
   setTrack(track: Tile[]) {
     this.track = [...track];
-    // drawPath(this);
   }
 
   private followTrack() {
@@ -55,7 +53,6 @@ export class Ghost {
     onMoved,
   }: GhostConstructorParams) {
     this.className = className;
-    this.startIndex = startIndex;
     this.currentIndex = startIndex;
     this.speed = speed;
     this.board = board;
