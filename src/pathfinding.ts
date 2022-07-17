@@ -38,7 +38,7 @@ export class Graph {
 }
 
 // Breadth First Search on Graphs pathfinding algorithm
-export function findPath(graph: Graph) {
+export function createPathFinder(graph: Graph) {
   return (fromIdx: number, toIdx: number) => {
     const frontier = [new Tile(fromIdx)];
 
