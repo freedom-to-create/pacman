@@ -8,8 +8,8 @@ import {
 } from '../constants';
 import { Ghost } from './Ghost';
 import { Pacman } from './Pacman';
-import { findPath, Graph } from '../pathfinding';
 import { Direction, GameEntity } from '../commonTypes';
+import { PathFinder } from '../pathfinding';
 
 export class Game {
   private board: Element[] = [];
@@ -17,7 +17,7 @@ export class Game {
   private scoreDisplay;
   private pacman;
   private ghosts;
-  private graph;
+  private findPath;
 
   private initBoard(boardRoot: Element) {
     BOARD_LAYOUT.forEach((element, idx) => {
@@ -67,7 +67,7 @@ export class Game {
   private updateGhostTracks = () => {
     this.ghosts.forEach((ghost) =>
       ghost.setTrack(
-        findPath(this.graph, ghost.currentIndex, this.pacman.currentIndex)
+        this.findPath(ghost.currentIndex, this.pacman.currentIndex)
       )
     );
   };
@@ -79,7 +79,11 @@ export class Game {
     document.removeEventListener('keyup', () => this.updateGhostTracks());
   }
 
-  constructor(boardRoot: Element, scoreDisplay: Element | null, graph: Graph) {
+  constructor(
+    boardRoot: Element,
+    scoreDisplay: Element | null,
+    findPath: PathFinder
+  ) {
     this.initBoard(boardRoot);
     this.scoreDisplay = scoreDisplay;
     this.pacman = new Pacman({
@@ -111,7 +115,7 @@ export class Game {
         onMoved: this.checkGameStatus,
       }),
     ];
-    this.graph = graph;
+    this.findPath = findPath;
     document.addEventListener('keyup', this.movePacman);
     document.addEventListener('keyup', this.updateGhostTracks);
   }
