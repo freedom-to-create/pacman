@@ -58,7 +58,7 @@ export class Ghost {
     this.board = board;
     board[this.currentIndex].classList.add(this.className);
     board[this.currentIndex].classList.add(GameEntity.Ghost);
-    this.followTrack();
     this.onMoved = onMoved;
+    this.followTrack();
   }
 }
