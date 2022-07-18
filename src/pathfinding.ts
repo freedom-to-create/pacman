@@ -5,7 +5,7 @@ export interface PathFinder {
   (fromIdx: number, toIdx: number): Tile[];
 }
 
-type MovementsGraph = Record<string, Tile | undefined>;
+type MovementsGraph = Record<string, Tile>;
 export class Tile {
   idx;
   constructor(idx: number) {
@@ -70,11 +70,11 @@ export function createPathFinder(graph: Graph) {
     );
 
     const path = [new Tile(toIdx)];
-    let currentNode = cameFrom[toIdx];
+    let currentTile = cameFrom[toIdx];
 
-    while (currentNode && currentNode.idx !== fromIdx) {
-      path.push(currentNode);
-      currentNode = cameFrom[currentNode.idx];
+    while (currentTile && currentTile.idx !== fromIdx) {
+      path.push(currentTile);
+      currentTile = cameFrom[currentTile.idx];
     }
 
     return path;

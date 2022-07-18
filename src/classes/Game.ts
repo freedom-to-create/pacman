@@ -14,7 +14,7 @@ import { PathFinder } from '../pathfinding';
 export class Game {
   private board: Element[] = [];
   private cookiesLeft = 0;
-  private scoreDisplay;
+  private scoreDisplayRoot;
   private pacman;
   private ghosts;
   private findPath;
@@ -36,9 +36,9 @@ export class Game {
       this.board[this.pacman.currentIndex].classList.contains(GameEntity.Cookie)
     ) {
       this.board[this.pacman.currentIndex].classList.remove(GameEntity.Cookie);
-      if (this.scoreDisplay) {
+      if (this.scoreDisplayRoot) {
         this.cookiesLeft--;
-        this.scoreDisplay.innerHTML = `Cookies left: ${this.cookiesLeft}`;
+        this.scoreDisplayRoot.innerHTML = `Cookies left: ${this.cookiesLeft}`;
       }
     }
   }
@@ -82,11 +82,11 @@ export class Game {
 
   constructor(
     boardRoot: Element,
-    scoreDisplay: Element | null,
+    scoreDisplayRoot: Element | null,
     findPath: PathFinder
   ) {
     this.initBoard(boardRoot);
-    this.scoreDisplay = scoreDisplay;
+    this.scoreDisplayRoot = scoreDisplayRoot;
     this.pacman = new Pacman({
       board: this.board,
       onMoved: () => {
