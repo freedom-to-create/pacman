@@ -11,7 +11,7 @@
     "watch": "npx webpack serve --mode=development"
   },
   "keywords": [
-    "pacman"
+    "pacman, pathfinding"
   ],
   "author": "Andrii Danchenko (impex.ua@gmail.com)",
   "license": "MIT",
