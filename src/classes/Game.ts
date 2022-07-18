@@ -73,10 +73,7 @@ export class Game {
   };
   private clearSubscriptions() {
     this.ghosts.forEach((ghost) => ghost.clearTimers());
-    document.removeEventListener('keyup', (keyCode) =>
-      this.movePacman(keyCode)
-    );
-    document.removeEventListener('keyup', () => this.updateGhostTracks());
+    document.removeEventListener('keyup', this.updateGhostTracks);
     document.removeEventListener('keyup', this.movePacman);
   }
 
