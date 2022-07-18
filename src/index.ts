@@ -4,7 +4,7 @@ import { createPathFinder, Graph } from './pathfinding';
 
 document.addEventListener('DOMContentLoaded', () => {
   const boardRoot = document.querySelector('.board');
-  const scoreDisplay = document.querySelector('.score');
+  const scoreDisplayRoot = document.querySelector('.score');
 
   if (!boardRoot) {
     return console.log(
@@ -13,5 +13,5 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const pathFinder = createPathFinder(new Graph(BOARD_LAYOUT));
-  new Game(boardRoot, scoreDisplay, pathFinder).run();
+  new Game(boardRoot, scoreDisplayRoot, pathFinder).run();
 });
