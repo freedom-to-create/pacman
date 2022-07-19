@@ -5,7 +5,8 @@ export interface PathFinder {
   (fromIdx: number, toIdx: number): Tile[];
 }
 
-type MovementsGraph = Record<string, Tile>;
+type MovementsGraph = Record<string, Tile | null>;
+
 export class Tile {
   idx;
   constructor(idx: number) {
@@ -13,7 +14,7 @@ export class Tile {
   }
 }
 
-export class Graph {
+export class Grid {
   private nodes;
 
   private init(gameGrid: BoardElement[]) {
@@ -26,7 +27,7 @@ export class Graph {
     );
   }
 
-  getNeighbors(node: Tile): (Tile | undefined)[] {
+  getNeighbors(node: Tile): (Tile | undefined | null)[] {
     return Object.values(DIRECTION_GEARBOX).map((direction) => {
       return this.nodes[direction + node.idx];
     });
@@ -38,15 +39,15 @@ export class Graph {
 }
 
 // Breadth First Search on Graphs pathfinding algorithm
-export function createPathFinder(graph: Graph) {
+export function createPathFinder(grid: Grid) {
   return (fromIdx: number, toIdx: number) => {
     const frontier = [new Tile(fromIdx)];
 
-    const cameFrom: Record<string, Tile | null> = { [fromIdx]: null };
+    const cameFrom: MovementsGraph = { [fromIdx]: null };
 
     // TODO: refactor to Queue
     for (let current = frontier.shift(); current; current = frontier.shift()) {
-      for (const neighbor of graph.getNeighbors(current)) {
+      for (const neighbor of grid.getNeighbors(current)) {
         if (neighbor && cameFrom[neighbor.idx] === undefined) {
           frontier.push(neighbor);
           cameFrom[neighbor.idx] = current;
