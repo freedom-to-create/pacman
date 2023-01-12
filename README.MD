@@ -1,4 +1,4 @@
-**PACMAN** is the model used to practice algorithms and data-structures
+**PACMAN** is a sandbox used to practice path finding algorithms
 
 __How to install and run:__
   ```
